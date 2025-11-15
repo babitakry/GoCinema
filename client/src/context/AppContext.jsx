@@ -3,6 +3,9 @@ import { useContext } from "react";
 import { createContext } from "react";
 import axios from "axios";
 import { useUser } from "@clerk/clerk-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import toast from "react-hot-toast";
 
 axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 
@@ -14,16 +17,52 @@ export const AppProvider = ({ children }) => {
     const [favoriteMovies, setFavoriteMoives] = useState([]);
 
     const { user } = useUser();
+    const { getToken } = useAuth();
+    const location = useLocation();
+    const navigate = useNavigate();
 
     const fetchIsAdmin = async()=>{
         try {
             const { data } = await axios.get('/api/admin/is-admin', { headers: {
-                Authorization: `Bearer`
+                Authorization: `Bearer ${await getToken()}`
             }})
+            setIsAdmin(data.isAdmin);
+
+            if(!data.isAdmin && location.pathname.startsWith('/admin')){
+                navigate('/');
+                toast.error('You are not authorized to access admin dashboard');
+            }
         } catch (error) {
             console.error(error);
         }
     }
+
+    const fetchShows = async () => {
+        try {
+            const { data } = await axios.get('/api/show/all');
+            if(data.succuss){
+                setShows(data.shows);
+            }
+            else{
+                toast.error(data.message);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    useEffect(() => {
+        fetchShows();
+    }, [])
+
+    useEffect(() => {
+        if(user){
+            fetchIsAdmin();
+        }   
+    }, [])
+
+    
+
 
     const value = {axios};
 
