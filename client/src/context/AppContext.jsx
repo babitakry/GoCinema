@@ -51,6 +51,24 @@ export const AppProvider = ({ children }) => {
         }
     }
 
+    const fetchFavoriteMovies = async () => {
+        try {
+            const { data } = await axios.get('/api/user/favorites', { headers: {
+                Authorization: `Bearer ${await getToken()}`
+            }})
+
+            if(data.succuss){
+                setFavoriteMoives(data.movies);
+            }
+            else{
+                toast.error(data.message);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+
     useEffect(() => {
         fetchShows();
     }, [])
@@ -58,6 +76,7 @@ export const AppProvider = ({ children }) => {
     useEffect(() => {
         if(user){
             fetchIsAdmin();
+            fetchFavoriteMovies();
         }   
     }, [])
 
