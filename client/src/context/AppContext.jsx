@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useContext } from "react";
 import { createContext } from "react";
 import axios from "axios";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth, useUser } from "@clerk/clerk-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import toast from "react-hot-toast";
@@ -40,10 +40,10 @@ export const AppProvider = ({ children }) => {
     const fetchShows = async () => {
         try {
             const { data } = await axios.get('/api/show/all');
-            if(data.succuss){
+
+            if(data?.success){
                 setShows(data.shows);
-            }
-            else{
+            }else{
                 toast.error(data.message);
             }
         } catch (error) {
@@ -57,7 +57,7 @@ export const AppProvider = ({ children }) => {
                 Authorization: `Bearer ${await getToken()}`
             }})
 
-            if(data.succuss){
+            if(data.success){
                 setFavoriteMoives(data.movies);
             }
             else{
@@ -68,6 +68,7 @@ export const AppProvider = ({ children }) => {
         }
     }
 
+    console.log("user ", user)
 
     useEffect(() => {
         fetchShows();
@@ -78,12 +79,13 @@ export const AppProvider = ({ children }) => {
             fetchIsAdmin();
             fetchFavoriteMovies();
         }   
-    }, [])
+    }, [user])
 
-    
-
-
-    const value = {axios};
+    const value = {
+        axios,
+        fetchIsAdmin,
+        user, getToken, navigate, isAdmin, shows, 
+        favoriteMovies, fetchFavoriteMovies};
 
     return (
         <AppContext.Provider value = {value}> 
