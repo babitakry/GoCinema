@@ -1,5 +1,5 @@
 import Booking from "../models/Booking.js"
-import Show from "../models/Show";
+import Show from "../models/Show.js";
 
 
 // API to check if user is admin
@@ -45,6 +45,28 @@ export const getAllShows = async (req, res) => {
         res.json({
             success: true,
             shows
+        })
+    } catch (error) {
+        console.error(error);
+        res.json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+// API to get all bookings
+export const getAllBookings = async (req, res) => {
+    try {
+        const bookings = await Booking.find({}).populate('user').populate({
+            path: "show",
+            populate: {path: "movie"}
+        }).sort({createdAt: -1})
+
+        console.log("Bookings", bookings);
+        res.json({
+            success: true,
+            bookings
         })
     } catch (error) {
         console.error(error);
