@@ -71,6 +71,7 @@ export const AppProvider = ({ children }) => {
     console.log("user ", user)
 
     useEffect(() => {
+        console.log("called");
         fetchShows();
     }, [])
 
